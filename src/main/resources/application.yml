@@ -1,0 +1,24 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=community_db;encrypt=true;trustServerCertificate=true;
+    username: Community
+    password: 20040901mhh
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+mybatis-plus:
+  mapper-locations: classpath:/mapper/**/*.xml
+  global-config:
+    db-config:
+      id-type: AUTO
+      logic-delete-field: is_deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    map-underscore-to-camel-case: true
+jwt:
+  secret: YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFy
+  expiration: 86400000
+logging:
+  level:
+    com.community: debug
