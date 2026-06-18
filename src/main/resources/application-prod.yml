@@ -1,0 +1,49 @@
+# ═══════════════════════════════════════════════
+#  生产环境配置 - 高并发防护版
+#  部署时使用：java -jar xxx.jar --spring.config.additional-location=./application-prod.yml
+# ═══════════════════════════════════════════════
+
+server:
+  port: 8081
+  # ── Tomcat 线程池调优 ──
+  tomcat:
+    max-threads: 200          # 最大工作线程数（默认200，并发量大可调到400）
+    min-spare-threads: 20     # 最小空闲线程（保持预热）
+    accept-count: 100         # 线程满时的排队容量
+    connection-timeout: 20000 # 连接超时20秒，防止慢连接占线程
+
+spring:
+  datasource:
+    url: jdbc:sqlserver://<服务器IP>:1433;databaseName=community_db;encrypt=true;trustServerCertificate=true;
+    username: Community
+    password: <生产密码>
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    # ── HikariCP 连接池（防崩溃核心） ──
+    hikari:
+      maximum-pool-size: 30        # 最大连接数（CPU核数*2 + 磁盘数，4核≈30）
+      minimum-idle: 10             # 最小空闲连接（保持预热）
+      idle-timeout: 600000         # 空闲连接10分钟回收
+      max-lifetime: 1800000        # 连接30分钟强制更换（防连接老化）
+      connection-timeout: 10000    # 获取连接超时10秒（超时立即失败，不死等）
+      leak-detection-threshold: 60000  # 连接泄漏检测：超过60秒未归还则报警
+      pool-name: community-hikari  # 连接池名称（日志可追踪）
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/**/*.xml
+  global-config:
+    db-config:
+      id-type: AUTO
+      logic-delete-field: is_deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    map-underscore-to-camel-case: true
+
+jwt:
+  secret: YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFy
+  expiration: 86400000
+
+logging:
+  level:
+    com.community: warn           # 生产环境用warn，减少日志IO开销
+    com.zaxxer.hikari: info       # 连接池日志保留，便于监控
