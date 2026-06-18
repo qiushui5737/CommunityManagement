@@ -43,4 +43,62 @@ public class FileUploadController {
         res.put("url", "/uploads/repair/" + newFileName);
         return Result.ok(res);
     }
+
+    /**
+     * 设施图片上传（保存到 uploads/facility/）
+     */
+    @PostMapping("/facility")
+    public Result<Map<String, String>> uploadFacilityImage(@RequestParam("file") MultipartFile file) throws IOException {
+        if (file.isEmpty()) return Result.error(400, "文件不能为空");
+
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null) return Result.error(400, "文件名无效");
+
+        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        if (!extension.matches("\\.(jpg|jpeg|png|gif|webp)$")) {
+            return Result.error(400, "仅支持 jpg/png/gif/webp 格式");
+        }
+
+        String newFileName = UUID.randomUUID() + extension;
+        String uploadDir = System.getProperty("user.dir") + "/uploads/facility/";
+
+        File dir = new File(uploadDir);
+        if (!dir.exists()) dir.mkdirs();
+
+        File dest = new File(uploadDir + newFileName);
+        file.transferTo(dest);
+
+        Map<String, String> res = new HashMap<>();
+        res.put("url", "/uploads/facility/" + newFileName);
+        return Result.ok(res);
+    }
+
+    /**
+     * 头像上传（保存到 uploads/avatar/）
+     */
+    @PostMapping("/avatar")
+    public Result<Map<String, String>> uploadAvatar(@RequestParam("file") MultipartFile file) throws IOException {
+        if (file.isEmpty()) return Result.error(400, "文件不能为空");
+
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null) return Result.error(400, "文件名无效");
+
+        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        if (!extension.matches("\\.(jpg|jpeg|png|gif|webp)$")) {
+            return Result.error(400, "仅支持 jpg/png/gif/webp 格式");
+        }
+
+        String newFileName = UUID.randomUUID() + extension;
+        String uploadDir = System.getProperty("user.dir") + "/uploads/avatar/";
+
+        File dir = new File(uploadDir);
+        if (!dir.exists()) dir.mkdirs();
+
+        File dest = new File(uploadDir + newFileName);
+        file.transferTo(dest);
+
+        Map<String, String> res = new HashMap<>();
+        res.put("url", "/uploads/avatar/" + newFileName);
+        return Result.ok(res);
+    }
 }

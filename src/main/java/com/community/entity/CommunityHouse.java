@@ -15,7 +15,7 @@ public class CommunityHouse {
     private Long unitId;         // 所属单元ID
     private String roomNo;       // 房间号
     private BigDecimal area;     // 面积
-    private String status;       // 状态：VACANT/OCCUPIED/RENTED
+    private String status;       // 状态：VACANT/OCCUPIED
     private Long ownerId;        // 关联业主ID
     private LocalDateTime createTime;
 }

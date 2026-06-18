@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.community.mapper.FeedbackMapper">
+
+    <select id="selectFeedbackPage" resultType="com.community.entity.Feedback">
+        SELECT
+            f.id, f.owner_id, f.type, f.title, f.content, f.images, f.status,
+            f.handler_id, f.create_time, f.update_time,
+            u.real_name AS owner_name,
+            (SELECT COUNT(*) FROM feedback_reply WHERE feedback_id = f.id) AS reply_count
+        FROM feedback f
+        LEFT JOIN sys_user u ON f.owner_id = u.id
+        <where>
+            <if test="ownerId != null">
+                AND f.owner_id = #{ownerId}
+            </if>
+            <if test="type != null and type != ''">
+                AND f.type = #{type}
+            </if>
+            <if test="status != null and status != ''">
+                AND f.status = #{status}
+            </if>
+        </where>
+        ORDER BY f.create_time DESC
+    </select>
+
+</mapper>

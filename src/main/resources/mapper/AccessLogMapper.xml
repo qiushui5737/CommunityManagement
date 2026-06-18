@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.community.mapper.AccessLogMapper">
+
+    <select id="selectLogPage" resultType="com.community.entity.AccessLog">
+        SELECT l.id, l.card_id, l.card_no, l.user_id, l.user_name,
+               l.direction, l.gate_location, l.building_id,
+               l.access_time, l.access_status, l.deny_reason
+        FROM access_log l
+        <where>
+            <if test="cardNo != null and cardNo != ''">
+                AND l.card_no LIKE CONCAT('%', #{cardNo}, '%')
+            </if>
+            <if test="userName != null and userName != ''">
+                AND l.user_name LIKE CONCAT('%', #{userName}, '%')
+            </if>
+            <if test="direction != null and direction != ''">
+                AND l.direction = #{direction}
+            </if>
+            <if test="accessStatus != null and accessStatus != ''">
+                AND l.access_status = #{accessStatus}
+            </if>
+            <if test="buildingId != null">
+                AND l.building_id = #{buildingId}
+            </if>
+        </where>
+        ORDER BY l.access_time DESC
+    </select>
+
+    <select id="selectDailyStats" resultType="java.util.Map">
+        SELECT TOP(#{days})
+            CONVERT(VARCHAR(10), access_time, 120) AS day,
+            COUNT(*) AS total,
+            SUM(CASE WHEN direction = 'IN' THEN 1 ELSE 0 END) AS enter_count,
+            SUM(CASE WHEN direction = 'OUT' THEN 1 ELSE 0 END) AS exit_count,
+            SUM(CASE WHEN access_status = 'DENIED' THEN 1 ELSE 0 END) AS denied_count
+        FROM access_log
+        WHERE access_time >= DATEADD(DAY, -#{days}, GETDATE())
+        GROUP BY CONVERT(VARCHAR(10), access_time, 120)
+        ORDER BY day DESC
+    </select>
+
+    <select id="selectLocationStats" resultType="java.util.Map">
+        SELECT gate_location AS location,
+               COUNT(*) AS total,
+               SUM(CASE WHEN access_status = 'DENIED' THEN 1 ELSE 0 END) AS denied
+        FROM access_log
+        GROUP BY gate_location
+        ORDER BY total DESC
+    </select>
+
+</mapper>
