@@ -1,6 +1,0 @@
-{
-  "files": ["../../前端/community-frontend/index.html"],
-  "insertBefore": "</body>",
-  "commentSyntax": "html",
-  "cspChecked": true
-}
